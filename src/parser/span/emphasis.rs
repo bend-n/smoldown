@@ -1,20 +1,12 @@
-use parser::span::parse_spans;
-use parser::Span;
-use parser::Span::Emphasis;
-use regex::Regex;
+use crate::parser::span::parse_spans;
+use crate::parser::Span;
+use crate::parser::Span::Emphasis;
 
 pub fn parse_emphasis(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        static ref EMPHASIS_UNDERSCORE: Regex = Regex::new(r"^_(?P<text>.+?)_").unwrap();
-        static ref EMPHASIS_STAR: Regex = Regex::new(r"^\*(?P<text>.+?)\*").unwrap();
-    }
-
-    if EMPHASIS_UNDERSCORE.is_match(text) {
-        let caps = EMPHASIS_UNDERSCORE.captures(text).unwrap();
+    if let Some(caps) = crate::regex!(r"^_(?P<text>.+?)_").captures(text) {
         let t = caps.name("text").unwrap().as_str();
         return Some((Emphasis(parse_spans(t)), t.len() + 2));
-    } else if EMPHASIS_STAR.is_match(text) {
-        let caps = EMPHASIS_STAR.captures(text).unwrap();
+    } else if let Some(caps) = crate::regex!(r"^\*(?P<text>.+?)\*").captures(text) {
         let t = caps.name("text").unwrap().as_str();
         return Some((Emphasis(parse_spans(t)), t.len() + 2));
     }
@@ -24,7 +16,7 @@ pub fn parse_emphasis(text: &str) -> Option<(Span, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_emphasis;
-    use parser::Span::{Emphasis, Text};
+    use crate::parser::Span::{Emphasis, Text};
 
     #[test]
     fn finds_emphasis() {

@@ -1,7 +1,7 @@
-use parser::span::parse_spans;
-use parser::Block;
-use parser::Block::Paragraph;
-use parser::Span::{Break, Text};
+use crate::parser::span::parse_spans;
+use crate::parser::Block;
+use crate::parser::Block::Paragraph;
+use crate::parser::Span::{Break, Text};
 
 mod atx_header;
 mod blockquote;
@@ -69,25 +69,30 @@ pub fn parse_blocks(md: &str) -> Vec<Block> {
 }
 
 fn parse_block(lines: &[&str]) -> Option<(Block, usize)> {
-    pipe_opt!(
-    lines
-    => parse_hr
-    => parse_atx_header
-    => parse_code_block
-    => parse_blockquote
-    => parse_unordered_list
-    => parse_ordered_list
-    => parse_link_reference
-    // Must not match before anything else. See: https://spec.commonmark.org/0.29/#setext-headings
-    => parse_setext_header
-    )
+    for elem in [
+        parse_hr,
+        parse_atx_header,
+        parse_code_block,
+        parse_blockquote,
+        parse_unordered_list,
+        parse_ordered_list,
+        parse_link_reference,
+        // Must not match before anything else. See: https://spec.commonmark.org/0.29/#setext-headings
+        parse_setext_header,
+    ] {
+        match elem(lines) {
+            None => continue,
+            x => return x,
+        }
+    }
+    None
 }
 
 #[cfg(test)]
 mod test {
     use super::parse_blocks;
-    use parser::Block::{Blockquote, CodeBlock, Header, Hr, Paragraph};
-    use parser::Span::Text;
+    use crate::parser::Block::{Blockquote, CodeBlock, Header, Hr, Paragraph};
+    use crate::parser::Span::Text;
 
     #[test]
     fn finds_atx_header() {

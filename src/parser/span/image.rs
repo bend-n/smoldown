@@ -1,16 +1,11 @@
-use parser::Span;
-use parser::Span::Image;
-use regex::Regex;
+use crate::parser::Span;
+use crate::parser::Span::Image;
 
 pub fn parse_image(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        static ref IMAGE: Regex =
-            Regex::new("^!\\[(?P<text>.*?)\\]\\((?P<url>.*?)(?:\\s\"(?P<title>.*?)\")?\\)")
-                .unwrap();
-    }
-
-    if IMAGE.is_match(text) {
-        let caps = IMAGE.captures(text).unwrap();
+    if let Some(caps) =
+        crate::regex!("^!\\[(?P<text>.*?)\\]\\((?P<url>.*?)(?:\\s\"(?P<title>.*?)\")?\\)")
+            .captures(text)
+    {
         let text = if let Some(mat) = caps.name("text") {
             mat.as_str().to_owned()
         } else {

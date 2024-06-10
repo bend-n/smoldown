@@ -1,16 +1,11 @@
-use parser::span::parse_spans;
-use parser::Block;
-use parser::Block::Header;
-use regex::Regex;
+use crate::parser::span::parse_spans;
+use crate::parser::Block;
+use crate::parser::Block::Header;
 
 pub fn parse_atx_header(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref ATX_HEADER_RE: Regex =
-            Regex::new(r"^(?P<level>#{1,6})\s(?P<text>.*?)(?:\s#*)?$").unwrap();
-    }
-
-    if ATX_HEADER_RE.is_match(lines[0]) {
-        let caps = ATX_HEADER_RE.captures(lines[0]).unwrap();
+    if let Some(caps) =
+        crate::regex!(r"^(?P<level>#{1,6})\s(?P<text>.*?)(?:\s#*)?$").captures(lines[0])
+    {
         return Some((
             Header(
                 parse_spans(caps.name("text").unwrap().as_str()),
@@ -25,8 +20,8 @@ pub fn parse_atx_header(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_atx_header;
-    use parser::Block::Header;
-    use parser::Span::Text;
+    use crate::parser::Block::Header;
+    use crate::parser::Span::Text;
 
     #[test]
     fn finds_atx_header() {

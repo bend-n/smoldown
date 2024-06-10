@@ -1,6 +1,6 @@
-use parser::block::parse_blocks;
-use parser::Block;
-use parser::Block::Blockquote;
+use crate::parser::block::parse_blocks;
+use crate::parser::Block;
+use crate::parser::Block::Blockquote;
 
 pub fn parse_blockquote(lines: &[&str]) -> Option<(Block, usize)> {
     // if the first char isnt a blockquote don't even bother
@@ -56,7 +56,7 @@ pub fn parse_blockquote(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_blockquote;
-    use parser::Block::Blockquote;
+    use crate::parser::Block::Blockquote;
 
     #[test]
     fn finds_blockquote() {

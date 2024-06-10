@@ -1,31 +1,19 @@
 [package]
 
-name = "markdown"
-version = "0.3.0"
+name = "smoldown"
+version = "0.1.0"
 authors = ["Johann Hofmann <mail@johann-hofmann.com>"]
-description = "Native Rust library for parsing Markdown and (outputting HTML)"
-repository = "https://github.com/johannhof/markdown.rs"
+description = "Native Rust library for parsing Markdown"
+edition = "2021"
+repository = "https://github.com/bend-n/smoldown"
 readme = "README.md"
 keywords = ["markdown", "md", "html", "parser"]
 license = "MIT OR Apache-2.0"
 
-exclude = [
-    "test.md"
-]
-
-[[bin]]
-name = "markdown"
-doc = false
-
-[features]
-default = []
-unstable = []
+exclude = ["test.md"]
 
 [dependencies]
-lazy_static = "1.4.0"
-pipeline = "0.5"
 regex = "1"
 
 [dev-dependencies]
 difference = "0.4"
-

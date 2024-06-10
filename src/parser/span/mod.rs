@@ -1,5 +1,5 @@
-use parser::Span;
-use parser::Span::{Literal, Text};
+use crate::parser::Span;
+use crate::parser::Span::{Literal, Text};
 
 mod br;
 mod code;
@@ -74,22 +74,27 @@ fn parse_escape(text: &str) -> Option<(Span, usize)> {
 }
 
 fn parse_span(text: &str) -> Option<(Span, usize)> {
-    pipe_opt!(
-    text
-    => parse_escape
-    => parse_code
-    => parse_strong
-    => parse_emphasis
-    => parse_break
-    => parse_image
-    => parse_link
-    )
+    for elem in [
+        parse_escape,
+        parse_code,
+        parse_strong,
+        parse_emphasis,
+        parse_break,
+        parse_image,
+        parse_link,
+    ] {
+        match elem(text) {
+            None => continue,
+            x => return x,
+        }
+    }
+    None
 }
 
 #[cfg(test)]
 mod test {
-    use parser::span::parse_spans;
-    use parser::Span::{Break, Code, Emphasis, Image, Link, Literal, Strong, Text};
+    use crate::parser::span::parse_spans;
+    use crate::parser::Span::{Break, Code, Emphasis, Image, Link, Literal, Strong, Text};
     use std::str;
 
     #[test]

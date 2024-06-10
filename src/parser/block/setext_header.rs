@@ -1,18 +1,12 @@
-use parser::span::parse_spans;
-use parser::Block;
-use parser::Block::Header;
-use regex::Regex;
+use crate::parser::span::parse_spans;
+use crate::parser::Block;
+use crate::parser::Block::Header;
 
 pub fn parse_setext_header(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref HORIZONTAL_RULE_1: Regex = Regex::new(r"^===+$").unwrap();
-        static ref HORIZONTAL_RULE_2: Regex = Regex::new(r"^---+$").unwrap();
-    }
-
     if lines.len() > 1 && !lines[0].is_empty() {
-        if HORIZONTAL_RULE_1.is_match(lines[1]) {
+        if crate::regex!(r"^===+$").is_match(lines[1]) {
             return Some((Header(parse_spans(lines[0]), 1), 2));
-        } else if HORIZONTAL_RULE_2.is_match(lines[1]) {
+        } else if crate::regex!(r"^---+$").is_match(lines[1]) {
             return Some((Header(parse_spans(lines[0]), 2), 2));
         }
     }
@@ -22,8 +16,8 @@ pub fn parse_setext_header(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_setext_header;
-    use parser::Block::Header;
-    use parser::Span::Text;
+    use crate::parser::Block::Header;
+    use crate::parser::Span::Text;
 
     #[test]
     fn finds_atx_header() {

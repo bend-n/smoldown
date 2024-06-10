@@ -1,22 +1,16 @@
-use parser::Span;
-use parser::Span::Break;
-use regex::Regex;
+use crate::parser::Span;
+use crate::parser::Span::Break;
 
 pub fn parse_break(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        static ref BR: Regex = Regex::new(r"^ {2}$").unwrap();
-    }
-
-    if BR.is_match(text) {
-        return Some((Break, 2));
-    }
-    None
+    crate::regex!(r"^ {2}$")
+        .is_match(text)
+        .then_some((Break, 2))
 }
 
 #[cfg(test)]
 mod test {
     use super::parse_break;
-    use parser::Span::Break;
+    use crate::parser::Span::Break;
 
     #[test]
     fn finds_breaks() {

@@ -1,22 +1,16 @@
-use parser::Block;
-use parser::Block::Hr;
-use regex::Regex;
+use crate::parser::Block;
+use crate::parser::Block::Hr;
 
 pub fn parse_hr(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref HORIZONTAL_RULE: Regex = Regex::new(r"^(===+)$|^(---+)$").unwrap();
-    }
-
-    if HORIZONTAL_RULE.is_match(lines[0]) {
-        return Some((Hr, 1));
-    }
-    None
+    crate::regex!(r"^(===+)$|^(---+)$")
+        .is_match(lines[0])
+        .then_some((Hr, 1))
 }
 
 #[cfg(test)]
 mod test {
     use super::parse_hr;
-    use parser::Block::Hr;
+    use crate::parser::Block::Hr;
 
     #[test]
     fn finds_hr() {

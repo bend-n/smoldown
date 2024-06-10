@@ -1,16 +1,8 @@
-use parser::Block;
-use parser::Block::LinkReference;
-use regex::Regex;
+use crate::parser::Block;
+use crate::parser::Block::LinkReference;
 
 pub fn parse_link_reference(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref LINK_REFERENCE_SINGLE_LINE: Regex = Regex::new("^\\s*\\[(?P<id>[^\\[\\]]+)\\]:\\s*(?P<url>\\S+)(?:\\s+(?:'(?P<title1>.*)'|\"(?P<title2>.*)\"|\\((?P<title3>.*?)\\)))?\n?").unwrap();
-        static ref LINK_REFERENCE_FIRST_LINE: Regex = Regex::new("^\\s*\\[(?P<id>[^\\[\\]]+)\\]:").unwrap();
-        static ref LINK_REFERENCE_SECOND_LINE: Regex = Regex::new("\\s*(?P<url>\\S+)(?:\\s+(?:'(?P<title1>.*)'|\"(?P<title2>.*)\"|\\((?P<title3>.*?)\\)))?\n?").unwrap();
-    }
-
-    if LINK_REFERENCE_SINGLE_LINE.is_match(lines[0]) {
-        let caps = LINK_REFERENCE_SINGLE_LINE.captures(lines[0]).unwrap();
+    if let Some(caps) = crate::regex!("^\\s*\\[(?P<id>[^\\[\\]]+)\\]:\\s*(?P<url>\\S+)(?:\\s+(?:'(?P<title1>.*)'|\"(?P<title2>.*)\"|\\((?P<title3>.*?)\\)))?\n?").captures(lines[0]) {
         return Some((
             LinkReference(
                 caps.name("id").unwrap().as_str().to_lowercase(),
@@ -24,10 +16,8 @@ pub fn parse_link_reference(lines: &[&str]) -> Option<(Block, usize)> {
         ));
     }
 
-    if LINK_REFERENCE_FIRST_LINE.is_match(lines[0]) && LINK_REFERENCE_SECOND_LINE.is_match(lines[1])
-    {
-        let caps1 = LINK_REFERENCE_FIRST_LINE.captures(lines[0]).unwrap();
-        let caps2 = LINK_REFERENCE_SECOND_LINE.captures(lines[1]).unwrap();
+    if let Some(caps1) = crate::regex!("^\\s*\\[(?P<id>[^\\[\\]]+)\\]:").captures(lines[0]) {
+        if let Some(caps2) = crate::regex!("\\s*(?P<url>\\S+)(?:\\s+(?:'(?P<title1>.*)'|\"(?P<title2>.*)\"|\\((?P<title3>.*?)\\)))?\n?").captures(lines[1]) {
         return Some((
             LinkReference(
                 caps1.name("id").unwrap().as_str().to_lowercase(),
@@ -41,6 +31,7 @@ pub fn parse_link_reference(lines: &[&str]) -> Option<(Block, usize)> {
             2,
         ));
     }
+    }
 
     None
 }
@@ -48,7 +39,7 @@ pub fn parse_link_reference(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_link_reference;
-    use parser::Block::LinkReference;
+    use crate::parser::Block::LinkReference;
 
     #[test]
     fn finds_link_reference() {

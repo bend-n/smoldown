@@ -1,12 +1,8 @@
-use parser::Span;
-use parser::Span::Code;
-use regex::Regex;
-
+use crate::parser::Span;
+use crate::parser::Span::Code;
 pub fn parse_code(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        static ref CODE_SINGLE: Regex = Regex::new(r"^`(?P<text>.+?)`").unwrap();
-        static ref CODE_DOUBLE: Regex = Regex::new(r"^``(?P<text>.+?)``").unwrap();
-    }
+    crate::regex!(CODE_SINGLE = r"^`(?P<text>.+?)`");
+    crate::regex!(CODE_DOUBLE = r"^``(?P<text>.+?)``");
 
     if CODE_DOUBLE.is_match(text) {
         let caps = CODE_DOUBLE.captures(text).unwrap();

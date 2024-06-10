@@ -1,20 +1,12 @@
-use parser::span::parse_spans;
-use parser::Span;
-use parser::Span::Strong;
-use regex::Regex;
+use crate::parser::span::parse_spans;
+use crate::parser::Span;
+use crate::parser::Span::Strong;
 
 pub fn parse_strong(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        static ref STRONG_UNDERSCORE: Regex = Regex::new(r"^__(?P<text>.+?)__").unwrap();
-        static ref STRONG_STAR: Regex = Regex::new(r"^\*\*(?P<text>.+?)\*\*").unwrap();
-    }
-
-    if STRONG_UNDERSCORE.is_match(text) {
-        let caps = STRONG_UNDERSCORE.captures(text).unwrap();
+    if let Some(caps) = crate::regex!(r"^__(?P<text>.+?)__").captures(text) {
         let t = caps.name("text").unwrap().as_str();
         return Some((Strong(parse_spans(t)), t.len() + 4));
-    } else if STRONG_STAR.is_match(text) {
-        let caps = STRONG_STAR.captures(text).unwrap();
+    } else if let Some(caps) = crate::regex!(r"^\*\*(?P<text>.+?)\*\*").captures(text) {
         let t = caps.name("text").unwrap().as_str();
         return Some((Strong(parse_spans(t)), t.len() + 4));
     }
@@ -24,7 +16,7 @@ pub fn parse_strong(text: &str) -> Option<(Span, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_strong;
-    use parser::Span::{Strong, Text};
+    use crate::parser::Span::{Strong, Text};
 
     #[test]
     fn finds_strong() {

@@ -1,49 +1,45 @@
 //! A crate for parsing Markdown in Rust
-#![crate_name = "markdown"]
 #![deny(missing_docs)]
-#![deny(warnings)]
 
-extern crate regex;
-
-#[macro_use]
-extern crate pipeline;
-
-#[macro_use]
-extern crate lazy_static;
-
-use std::fs::File;
-use std::io::{self, Read};
-use std::path::Path;
-
-mod html;
-mod markdown_generator;
 mod parser;
 
 pub use parser::{Block, ListItem, Span};
-
-/// Converts a Markdown string to HTML
-pub fn to_html(text: &str) -> String {
-    let result = parser::parse(text);
-    html::to_html(&result)
-}
 
 /// Converts a Markdown string to a tokenset of Markdown items
 pub fn tokenize(text: &str) -> Vec<Block> {
     parser::parse(text)
 }
 
-/// Convert tokenset of Markdown items back to String
-pub fn generate_markdown(x: Vec<Block>) -> String {
-    markdown_generator::generate(x)
+macro_rules! regex {
+    ($r:literal) => {{
+        crate::regex!(R = $r);
+        &*R
+    }};
+    ($as:ident = $r:literal) => {
+        static $as: crate::LazyLock<regex::Regex> =
+            crate::LazyLock::new(|| regex::Regex::new($r).unwrap());
+    };
+}
+use regex;
+
+struct LazyLock<T, F = fn() -> T> {
+    data: ::std::sync::OnceLock<T>,
+    f: F,
 }
 
-/// Opens a file and converts its contents to HTML
-pub fn file_to_html(path: &Path) -> io::Result<String> {
-    let mut file = File::open(path)?;
+impl<T, F> LazyLock<T, F> {
+    pub const fn new(f: F) -> LazyLock<T, F> {
+        Self {
+            data: ::std::sync::OnceLock::new(),
+            f,
+        }
+    }
+}
 
-    let mut text = String::new();
-    file.read_to_string(&mut text)?;
+impl<T> ::std::ops::Deref for LazyLock<T> {
+    type Target = T;
 
-    let result = parser::parse(&text);
-    Ok(html::to_html(&result))
+    fn deref(&self) -> &Self::Target {
+        self.data.get_or_init(self.f)
+    }
 }

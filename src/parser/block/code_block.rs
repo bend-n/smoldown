@@ -1,14 +1,7 @@
-use parser::Block;
-use parser::Block::CodeBlock;
-use regex::Regex;
+use crate::parser::Block;
+use crate::parser::Block::CodeBlock;
 
 pub fn parse_code_block(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref CODE_BLOCK_SPACES: Regex = Regex::new(r"^ {4}").unwrap();
-        static ref CODE_BLOCK_TABS: Regex = Regex::new(r"^\t").unwrap();
-        static ref CODE_BLOCK_BACKTICKS: Regex = Regex::new(r"^```").unwrap();
-    }
-
     let mut content = String::new();
     let mut lang: Option<String> = None;
     let mut line_number = 0;
@@ -16,14 +9,14 @@ pub fn parse_code_block(lines: &[&str]) -> Option<(Block, usize)> {
     let mut backtick_closed = false;
 
     for line in lines {
-        if !backtick_opened && CODE_BLOCK_SPACES.is_match(line) {
+        if !backtick_opened && crate::regex!(r"^ {4}").is_match(line) {
             if line_number > 0 && !content.is_empty() {
                 content.push('\n');
             }
             // remove top-level spaces
             content.push_str(&line[4..line.len()]);
             line_number += 1;
-        } else if !backtick_opened && CODE_BLOCK_TABS.is_match(line) {
+        } else if !backtick_opened && crate::regex!(r"^\t").is_match(line) {
             if line_number > 0 && !content.is_empty() {
                 content.push('\n');
             }
@@ -33,7 +26,7 @@ pub fn parse_code_block(lines: &[&str]) -> Option<(Block, usize)> {
                 content.push_str(&line[1..line.len()]);
             }
             line_number += 1;
-        } else if CODE_BLOCK_BACKTICKS.is_match(line) {
+        } else if crate::regex!(r"^```").is_match(line) {
             line_number += 1;
 
             if !backtick_opened && !(line_number == 0 && line.get(3..).is_some()) {
@@ -66,7 +59,7 @@ pub fn parse_code_block(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_code_block;
-    use parser::Block::CodeBlock;
+    use crate::parser::Block::CodeBlock;
 
     #[test]
     fn finds_code_block() {

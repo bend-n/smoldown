@@ -1,16 +1,12 @@
-use parser::block::parse_blocks;
-use parser::Block;
-use parser::Block::{Paragraph, UnorderedList};
-use parser::ListItem;
-use regex::Regex;
+use crate::parser::block::parse_blocks;
+use crate::parser::Block;
+use crate::parser::Block::{Paragraph, UnorderedList};
+use crate::parser::ListItem;
 
 pub fn parse_unordered_list(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref LIST_BEGIN: Regex =
-            Regex::new(r"^(?P<indent> *)(-|\+|\*) (?P<content>.*)").unwrap();
-        static ref NEW_PARAGRAPH: Regex = Regex::new(r"^ +").unwrap();
-        static ref INDENTED: Regex = Regex::new(r"^ {0,4}(?P<content>.*)").unwrap();
-    }
+    crate::regex!(LIST_BEGIN = r"^(?P<indent> *)(-|\+|\*) (?P<content>.*)");
+    crate::regex!(NEW_PARAGRAPH = r"^ +");
+    crate::regex!(INDENTED = r"^ {0,4}(?P<content>.*)");
 
     // if the beginning doesn't match a list don't even bother
     if !LIST_BEGIN.is_match(lines[0]) {
@@ -97,7 +93,7 @@ pub fn parse_unordered_list(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_unordered_list;
-    use parser::Block::UnorderedList;
+    use crate::parser::Block::UnorderedList;
 
     #[test]
     fn finds_list() {

@@ -1,16 +1,12 @@
-use parser::block::parse_blocks;
-use parser::Block;
-use parser::Block::{OrderedList, Paragraph};
-use parser::{ListItem, OrderedListType};
-use regex::Regex;
+use crate::parser::block::parse_blocks;
+use crate::parser::Block;
+use crate::parser::Block::{OrderedList, Paragraph};
+use crate::parser::{ListItem, OrderedListType};
 
 pub fn parse_ordered_list(lines: &[&str]) -> Option<(Block, usize)> {
-    lazy_static! {
-        static ref LIST_BEGIN: Regex =
-            Regex::new(r"^(?P<indent> *)(?P<numbering>[0-9.]+|[aAiI]+\.) (?P<content>.*)").unwrap();
-        static ref NEW_PARAGRAPH: Regex = Regex::new(r"^ +").unwrap();
-        static ref INDENTED: Regex = Regex::new(r"^ {0,4}(?P<content>.*)").unwrap();
-    }
+    crate::regex!(LIST_BEGIN = r"^(?P<indent> *)(?P<numbering>[0-9.]+|[aAiI]+\.) (?P<content>.*)");
+    crate::regex!(NEW_PARAGRAPH = r"^ +");
+    crate::regex!(INDENTED = r"^ {0,4}(?P<content>.*)");
 
     // if the beginning doesn't match a list don't even bother
     if !LIST_BEGIN.is_match(lines[0]) {
@@ -106,9 +102,9 @@ pub fn parse_ordered_list(lines: &[&str]) -> Option<(Block, usize)> {
 #[cfg(test)]
 mod test {
     use super::parse_ordered_list;
-    use parser::Block::OrderedList;
-    use parser::ListItem::Paragraph;
-    use parser::OrderedListType;
+    use crate::parser::Block::OrderedList;
+    use crate::parser::ListItem::Paragraph;
+    use crate::parser::OrderedListType;
 
     #[test]
     fn finds_list() {

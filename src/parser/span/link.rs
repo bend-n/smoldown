@@ -1,23 +1,9 @@
-use parser::span::parse_spans;
-use parser::Span;
-use parser::Span::{Link, RefLink};
-use regex::Regex;
+use crate::parser::span::parse_spans;
+use crate::parser::Span;
+use crate::parser::Span::{Link, RefLink};
 
 pub fn parse_link(text: &str) -> Option<(Span, usize)> {
-    lazy_static! {
-        // This is the second part of the regex, that matches the reference or url and title.
-        static ref LINK_ATTR_STR: &'static str = "(?:\\s*\\[(?P<ref>.*)\\]|\\((?P<url>.*?)(?:\\s*\"(?P<title>.*?)\")?\\s*\\))?";
-        // This regex does not sufficiently cover the edge case where there are brackets (e.g. for
-        // images) inside a link text. It's sufficient for identifying links anyway, we'll properly
-        // figure out the braces below.
-        static ref LINK_STR: String = "^\\[(?P<text>.*?)\\]".to_owned() + &LINK_ATTR_STR;
-        static ref LINK: Regex =
-            Regex::new(&LINK_STR).unwrap();
-        static ref LINK_ATTR: Regex =
-            Regex::new(&("^".to_owned() + &LINK_ATTR_STR)).unwrap();
-    }
-
-    if LINK.is_match(text) {
+    if crate::regex!("^\\[(?P<text>.*?)\\](?:\\s*\\[(?P<ref>.*)\\]|\\((?P<url>.*?)(?:\\s*\"(?P<title>.*?)\")?\\s*\\))?").is_match(text) {
         let mut chars = text.chars();
         let mut content = String::new();
 
@@ -55,7 +41,7 @@ pub fn parse_link(text: &str) -> Option<(Span, usize)> {
             return None;
         }
 
-        let caps = LINK_ATTR.captures(chars.as_str()).unwrap();
+        let caps = crate::regex!("^(?:\\s*\\[(?P<ref>.*)\\]|\\((?P<url>.*?)(?:\\s*\"(?P<title>.*?)\")?\\s*\\))?").captures(chars.as_str()).unwrap();
 
         // Check whether we have an inline link (in which case the "url" field is captured),
         // whether there's an explicit reference provided or if we should implicitly use the link
@@ -87,8 +73,8 @@ pub fn parse_link(text: &str) -> Option<(Span, usize)> {
 
 #[cfg(test)]
 mod test {
-    use parser::span::parse_link;
-    use parser::Span::{Image, Link, Literal, RefLink, Text};
+    use crate::parser::span::parse_link;
+    use crate::parser::Span::{Image, Link, Literal, RefLink, Text};
 
     #[test]
     fn finds_link() {
